@@ -7,8 +7,10 @@ const app = express();
 app.use(express.json());
 
 const authRouter = require('./routes/auth/authRouter');
+const notesRouter = require('./routes/notes/notesRouter');
 
 app.use('/auth', authRouter);
+app.use('/notes', notesRouter);
 
 mongoose
 	.connect(process.env.MONGO_URI)
