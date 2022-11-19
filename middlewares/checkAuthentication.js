@@ -6,7 +6,6 @@ const checkAuthentication = (req, res, next) => {
 		const token = req.headers.authorization.split(' ')[1];
 		const data = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 		req.data = data;
-		console.log(data);
 	} catch (error) {
 		return res.status(401).send({ error: error.message });
 	}

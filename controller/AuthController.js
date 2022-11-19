@@ -20,7 +20,7 @@ const handleLogin = async (req, res) => {
 
 	if (isMatch) {
 		const accessToken = generateAccessToken(user.email, user._id);
-		return res.status(202).send({ msg: 'Logged in successfully', accessToken });
+		return res.status(202).send({ msg: 'Logged in successfully', accessToken, email: user.email });
 	} else {
 		return res.status(401).send({ error: 'Invalid Credentials. Please try again.' });
 	}
@@ -47,7 +47,8 @@ const handleRegister = async (req, res) => {
 		.save()
 		.then((doc) => {
 			console.log(doc);
-			res.status(200).send({ data: doc });
+			const accessToken = generateAccessToken(doc.email, doc._id);
+			res.status(200).send({ doc, accessToken });
 		})
 		.catch((err) => {
 			console.error(err);
@@ -56,7 +57,7 @@ const handleRegister = async (req, res) => {
 
 const generateAccessToken = (email, id) => {
 	const accessToken = jwt.sign({ email, id }, process.env.ACCESS_TOKEN_SECRET, {
-		expiresIn: '20m',
+		expiresIn: '2d',
 	});
 	console.log(accessToken);
 	return accessToken;

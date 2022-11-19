@@ -46,6 +46,7 @@ const getAllNotes = async (req, res) => {
 
 // get single note
 const getSingleNote = async (req, res) => {
+	const { email } = req.data;
 	const id = req.params.id;
 
 	if (!ObjectId.isValid(id)) {
@@ -54,6 +55,11 @@ const getSingleNote = async (req, res) => {
 
 	try {
 		const note = await NotesModel.find({ _id: id }).exec();
+		console.log(note, '-------', email);
+
+		if (note[0].email != email) {
+			return res.status(401).send({ msg: 'Unauthorized. This is not your note' });
+		}
 		return res.status(200).send({ note: note });
 	} catch (error) {
 		return res.status(400).send({ error: 'Note id is not valid' });
@@ -62,6 +68,7 @@ const getSingleNote = async (req, res) => {
 
 // edit note
 const editNote = async (req, res) => {
+	const { email } = req.data;
 	const id = req.params.id;
 
 	if (!ObjectId.isValid(id)) {
@@ -75,6 +82,11 @@ const editNote = async (req, res) => {
 	}
 
 	try {
+		const prevNote = await NotesModel.find({ _id: id }).exec();
+		if (prevNote[0].email != email) {
+			return res.status(401).send({ msg: 'Unauthorized. This is not your note' });
+		}
+
 		const note = await NotesModel.updateOne(
 			{ _id: id },
 			{
@@ -91,7 +103,8 @@ const editNote = async (req, res) => {
 };
 
 // delete note
-const deleteNote = (req, res) => {
+const deleteNote = async (req, res) => {
+	const { email } = req.data;
 	const id = req.params.id;
 
 	if (!ObjectId.isValid(id)) {
@@ -99,7 +112,12 @@ const deleteNote = (req, res) => {
 	}
 
 	NotesModel.deleteOne({ _id: id })
-		.then((doc) => res.status(200).send({ msg: 'Item deleted', doc }))
+		.then((doc) => {
+			if (doc.deletedCount == 0) {
+				return res.status(404).send({ msg: 'Note is not available' });
+			}
+			return res.status(200).send({ msg: 'Item deleted', doc });
+		})
 		.catch((err) => res.status(400).send({ error: err.message }));
 };
 
