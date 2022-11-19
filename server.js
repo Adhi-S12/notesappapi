@@ -14,6 +14,13 @@ const notesRouter = require('./routes/notes/notesRouter');
 app.use('/auth', authRouter);
 app.use('/notes', notesRouter);
 
+app.get('/', (req, res) => {
+	res.send({
+		msg:
+			'Welcome to notesappapi, use the routes /auth/register, /auth/login to register or login. Use /notes for accessing notes',
+	});
+});
+
 mongoose
 	.connect(process.env.MONGO_URI)
 	.then(() => {
